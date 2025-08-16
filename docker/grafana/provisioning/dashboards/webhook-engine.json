@@ -1,0 +1,225 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "liveNow": true,
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "webhook",
+    "zoom",
+    "fastpath"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "prom",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "label": "Prometheus"
+      },
+      {
+        "name": "loki",
+        "type": "datasource",
+        "query": "loki",
+        "current": {
+          "text": "Loki",
+          "value": "Loki"
+        },
+        "label": "Loki"
+      },
+      {
+        "name": "tempo",
+        "type": "datasource",
+        "query": "tempo",
+        "current": {
+          "text": "Tempo",
+          "value": "Tempo"
+        },
+        "label": "Tempo"
+      },
+      {
+        "type": "interval",
+        "name": "interval",
+        "label": "Resolution",
+        "query": "5s,10s,15s,30s,1m",
+        "current": {
+          "text": "10s",
+          "value": "10s"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "title": "Webhook Engine \u2014 Overview (Prom+Loki+Tempo)",
+  "uid": "webhook-engine-overview",
+  "version": 1,
+  "panels": [
+    {
+      "type": "row",
+      "title": "Traffic Overview",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Incoming RPS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(webhook_received_total[$interval]))",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Validated / sec",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(webhook_validated_total[$interval]))",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "HTTP 429 / sec",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(webhook_dropped_429_total[$interval]))",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "RPS vs 429",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(webhook_received_total[$interval]))",
+          "legendFormat": "Incoming RPS",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(webhook_dropped_429_total[$interval]))",
+          "legendFormat": "429 RPS",
+          "refId": "B"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "row",
+      "title": "Fast-path Health",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Queue Depth by Shard",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "expr": "fast_shard_queued",
+          "legendFormat": "shard {{shard}}",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      }
+    },
+    {
+      "type": "logs",
+      "title": "Errors & Warnings (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "expr": "{job=\"webhookd\"} |~ `level=(error|warn)`",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      }
+    }
+  ]
+}

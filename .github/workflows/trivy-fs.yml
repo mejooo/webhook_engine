@@ -1,0 +1,17 @@
+name: Trivy FS
+on: [push, pull_request]
+permissions: { contents: read, security-events: write }
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          format: sarif
+          output: trivy-fs.sarif
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+      - uses: github/code-scanning/upload-sarif@v3
+        with: { sarif_file: trivy-fs.sarif }

@@ -1,0 +1,32 @@
+server:
+  addr: ":8443"
+  tls: { cert_file: "certs/server.crt", key_file: "certs/server.key" }
+  base_path: "/"
+  read_timeout_ms: 5000
+  write_timeout_ms: 5000
+
+logging: { level: "warn", file: "logs/app.log", trace_file: "logs/traces.json" }
+mode:    { debug_level: 0 }
+
+metrics: { enable: true, path: "/metrics" }
+
+tracing:
+  service_name: "zoom-webhook"
+  otlp_endpoint: "http://tempo:4317"
+  sample_ratio: 0.0
+
+validators:
+  zoom:
+    secret: ""
+
+zoom_app:
+  crc: { rate_per_sec: 5, burst: 10 }
+  legacy_signature_fallback: false
+  fastpath:
+    enabled: true
+    shards: 4
+    ring_size: 4096
+    validators_per_shard: 1
+    batch_size: 128
+    batch_linger_ms: 2
+    base_dir: "data/validated.fast.dev"
