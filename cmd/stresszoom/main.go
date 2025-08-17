@@ -80,9 +80,12 @@ loop:
 		case <-tick.C:
 			if time.Now().After(end) { break loop }
 			perMs := rate // simplistic; rate is per sec, but we send per ms bursts of 'rate/1000' below
-			if perMs > 1000 { perMs = perMs // keep burst size sane for laptop
+			if perMs > 1000 {
+				perMs = perMs // keep burst size sane for laptop
 			}
-			for i:=0;i<rate//1000;i++ { work <- struct{}{} }
+			for i := 0; i < rate/1000; i++ {
+				work <- struct{}{}
+			}
 		}
 	}
 	close(work)
