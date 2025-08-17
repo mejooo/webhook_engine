@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/valyala/fasthttp"
-	"webhook-engine/internal/zoomapp"
-	"webhook-engine/pkg/fastqueue"
-	"webhook-engine/pkg/metrics"
+	"github.com/mejooo/webhook_engine/internal/zoomapp"
+	"github.com/mejooo/webhook_engine/internal/fastpath"
+	"github.com/mejooo/webhook_engine/pkg/fastqueue"
+	"github.com/mejooo/webhook_engine/pkg/metrics"
 )
 
 type App struct {
@@ -21,12 +22,15 @@ func NewApp(cfg RootConfig, log *logrus.Logger) *App {
 	return &App{Cfg: cfg, Log: log}
 }
 
-func (a *App) AttachFastRings(shards []*struct{ Ring *fastqueue.Ring }) {
+// AttachFastRings wires the server to the actual shard rings.
+// Accepts real fastpath shards, extract their Ring pointers.
+func (a *App) AttachFastRings(shards []*fastpath.Shard) {
 	a.Fast.Rings = make([]*fastqueue.Ring, len(shards))
 	for i, s := range shards {
 		a.Fast.Rings[i] = s.Ring
 	}
 }
+
 
 // Handler is the regular non-fast handler (minimal in this sample).
 func (a *App) Handler() fasthttp.RequestHandler {

@@ -71,7 +71,7 @@
     "to": "now"
   },
   "title": "Webhook Engine \u2014 Overview (Prom+Loki+Tempo)",
-  "uid": "webhook-engine-overview",
+  "uid": "github.com/mejooo/webhook_engine-overview",
   "version": 1,
   "panels": [
     {

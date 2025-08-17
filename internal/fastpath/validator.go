@@ -6,9 +6,9 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 
-	"webhook-engine/pkg/events"
-	"webhook-engine/pkg/fastqueue"
-	"webhook-engine/pkg/metrics"
+	"github.com/mejooo/webhook_engine/pkg/events"
+	"github.com/mejooo/webhook_engine/pkg/fastqueue"
+	"github.com/mejooo/webhook_engine/pkg/metrics"
 )
 
 type Validator struct {

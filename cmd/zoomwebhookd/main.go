@@ -2,25 +2,29 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
-	"log"
-	"strconv"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/valyala/fasthttp"
-	"github.com/sirupsen/logrus"
 
-	"webhook-engine/internal/server"
-	"webhook-engine/internal/zoomapp"
-	"webhook-engine/internal/fastpath"
-	"webhook-engine/pkg/tracing"
-	"webhook-engine/pkg/validators/zoom"
+	"github.com/mejooo/webhook_engine/internal/fastpath"
+	"github.com/mejooo/webhook_engine/internal/server"
+	"github.com/mejooo/webhook_engine/internal/zoomapp"
+	"github.com/mejooo/webhook_engine/pkg/tracing"
+	"github.com/mejooo/webhook_engine/pkg/validators/zoom"
 )
 
-func die(err error) { if err != nil { log.Fatal(err) } }
+func die(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	var cfgPath string
@@ -73,7 +77,7 @@ func main() {
 
 		// metrics ticker
 		go func() {
-			t := time.NewTicker(time.Duration(metricsTick)*time.Millisecond)
+			t := time.NewTicker(time.Duration(metricsTick) * time.Millisecond)
 			defer t.Stop()
 			for range t.C {
 				fastpath.ReportShardMetrics(shards)
@@ -84,20 +88,28 @@ func main() {
 	handler := app.FastHandler(zcfg) // includes CRC pre-handler
 
 	// graceful shutdown
-	ctx, cancel := context.WithCancel(context.Background())
+	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() { <-sigs; cancel(); if stopFast!=nil { _=stopFast() } }()
+	go func() {
+		<-sigs
+		cancel()
+		if stopFast != nil {
+			_ = stopFast()
+		}
+	}()
 
 	// Serve: in Docker we use PORT=8080 (HTTP). TLS for bare metal not included in this sample.
 	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	if port == "" {
+		port = "8080"
+	}
 	srv := &fasthttp.Server{
-		Handler: handler,
-		ReadTimeout:  5*time.Second,
-		WriteTimeout: 5*time.Second,
-		Name: "zoomwebhookd",
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+		Name:         "zoomwebhookd",
 	}
 	logr.WithField("port", port).Warn("serving HTTP")
 	if err := srv.ListenAndServe(":" + port); err != nil {

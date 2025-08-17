@@ -1,6 +1,6 @@
-module github.com/example/webhook-engine
+module github.com/mejooo/webhook_engine
 
-go 1.23.0
+go 1.23
 
 require (
 	github.com/dgraph-io/badger/v4 v4.2.0

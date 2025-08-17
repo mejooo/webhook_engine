@@ -2,7 +2,7 @@ package zoomapp
 
 import (
 	"encoding/json"
-	"webhook-engine/pkg/validators/zoom"
+	"github.com/mejooo/webhook_engine/pkg/validators/zoom"
 
 	"github.com/valyala/fasthttp"
 )
