@@ -1,0 +1,42 @@
+server:
+  listen: ":8080"           # where your webhook listens
+  tls:
+    enabled: false          # true = serve HTTPS directly, false = plain HTTP (OK behind WAF)
+    cert_file: "certs/server.crt"
+    key_file: "certs/server.key"
+  shards: 16
+  queue_size: 8192
+  validators_per_shard: 2
+  batch:
+    size: 512
+    linger_ms: 1
+
+logging:
+  level: "info"             # debug | info | warn | error
+  file: ""                  # "" = stdout, else write to file (NOT the event output; this is app logs)
+
+metrics:
+  prometheus_listen: ":9090"  # "" disables /metrics server
+
+tracing:
+  otlp_endpoint: ""         # e.g. "tempo:4317" (empty disables exporter)
+  sample_ratio: 0.001
+
+zoom:
+  secret_env: "ZOOM_WEBHOOK_SECRET_TOKEN"
+
+outputs:
+  # file output with rotation
+  - type: "file"
+    path: "./events.out.jsonl"
+    rotation:
+      max_size_mb: 100
+      max_backups: 5
+      max_age_days: 14
+      compress: true
+  # HTTP output (e.g., Splunk HEC)
+  - type: "http"
+    url: "https://splunk-hec.example.com/services/collector"
+    timeout_ms: 2000
+    parallel: 8
+    hec_token_env: "SPLUNK_HEC_TOKEN"   # set env var; will send Authorization: Splunk <token>
